@@ -1,37 +1,31 @@
-const cheerio = require("cheerio");
-const request = require("request");
+const request = require('request')
+const cheerio = require('cheerio')
 
+const scoreObj = require('./scorecard')
 
-const scorecardObj = require('./scorecard')
+function getScoreCards(link) {
+    request(link, cb)
 
-function getAllMatchLink(uri) {
-  request(uri, function (error, response, html) {
-    if (error) {
-      console.log(error);
-    } else {
-      extractAllLink(html);
+    function cb(err, response, html) {
+        if (err) {
+            console.log(err)
+        }
+        else {
+            getScoreCardsHtml(html)
+        }
     }
-  });
+    function getScoreCardsHtml(html) {
+        let $ = cheerio.load(html)
+        let scoreCards = $('[class="ds-flex ds-mx-4 ds-pt-2 ds-pb-3 ds-space-x-4 ds-border-t ds-border-line-default-translucent"] span:nth-child(3)>a')
+        for (let i = 0; i < scoreCards.length; i++) {
+            let scoreCardLink = $(scoreCards[i]).attr('href')
+            let fullScoreLink = `https://www.espncricinfo.com${scoreCardLink}`
+            //console.log(fullScoreLink)
+            scoreObj.ps(fullScoreLink)
+        }
+    }
 }
 
-function extractAllLink(html) {
-  let $ = cheerio.load(html);
-
-  let scoreCardArr = $('a[data-hover="Scorecard"]');
-
-  for (let i = 0; i < scoreCardArr.length; i++) {
-    let link = $(scoreCardArr[i]).attr("href");
-    let fullLink = "https://www.espncricinfo.com/" + link;
-    //console.log(fullLink);
-
-    scorecardObj.ps(fullLink)
-
-
-
-  
-  }
+module.exports ={
+    getAllMatch : getScoreCards
 }
-
-module.exports = {
-  getAllMatch: getAllMatchLink,
-};
