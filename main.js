@@ -1,50 +1,39 @@
-const url = "https://www.espncricinfo.com/series/ipl-2020-21-1210595";
+const url = 'https://www.espncricinfo.com/series/ipl-2020-21-1210595'
 
-const request = require("request");
-const cheerio = require("cheerio");
-
+const request = require('request')
+const cheerio = require('cheerio')
 const fs = require('fs')
-
 const path = require('path')
+const allMatchObj = require('./AllMatch')
 
-const allMatchObj = require("./allMatch");
+let iplPath = path.join(__dirname, "IPL")
 
-
-let iplPath = path.join(__dirname , "IPL")
-
-
-function dirCreator(filePath){
-  if(fs.existsSync(filePath)==false){
-    fs.mkdirSync(filePath)
-  }
+function dirCreator(filepath) {
+    if (fs.existsSync(filepath) == false) {
+        fs.mkdirSync(filepath)
+    }
 }
-
-//console.log(__dirname) // parent direcorty Path
 
 dirCreator(iplPath)
 
-request(url, cb);
+request(url, cb)
 
-function cb(err, response, html) {
-  if (err) {
-    console.error(err);
-  } else {
-    extractLink(html);
-  }
+function cb(error, response, html) {
+    if (error) {
+        console.log(error)
+    }
+    else {
+        extract(html)
+    }
 }
 
-function extractLink(html) {
-  let $ = cheerio.load(html);
-  let anchorElem = $('a[data-hover="View All Results"]');
+function extract(html) {
+    let $ = cheerio.load(html)
+    let linkattr = $('[class="ds-py-3 ds-px-4"] [class="ds-inline-flex ds-items-center ds-leading-none"] a')
+    let link = linkattr.attr('href')
 
-  let link = anchorElem.attr("href");
+    let fulllink = 'https://www.espncricinfo.com' + link
 
-  console.log(link);
 
-  let fullLink = "https://www.espncricinfo.com" + link;
-  console.log(fullLink);
-
-  allMatchObj.getAllMatch(fullLink);
+    allMatchObj.getAllMatch(fulllink)
 }
-
-
